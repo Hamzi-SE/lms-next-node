@@ -3,6 +3,8 @@ export const app = express();
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
+import ErrorMiddleware from "./middleware/error";
+
 // body parser
 app.use(express.json({ limit: "50mb" }));
 
@@ -28,5 +30,10 @@ app.get("/health", (req: Request, res: Response, next: NextFunction) => {
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
     const error = new Error(`Route ${req.originalUrl} not found`) as any;
     error.statusCode = 404;
-    next(error);
+    res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+    });
 });
+
+app.use(ErrorMiddleware);
