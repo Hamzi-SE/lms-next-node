@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 export const app = express();
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import userRoutes from "./routes/user.route";
 
 import ErrorMiddleware from "./middleware/error";
 
@@ -17,6 +18,9 @@ app.use(
         origin: process.env.ORIGIN,
     })
 );
+
+// routes
+app.use("/api/v1/user", userRoutes);
 
 // testing api
 app.get("/health", (req: Request, res: Response, next: NextFunction) => {
