@@ -6,7 +6,7 @@ interface IActivationToken {
     activationCode: string;
 }
 
-export const createActivationToken = (user: IUser): IActivationToken => {
+export const createActivationToken = (user: any): IActivationToken => {
     const activationCode = Math.floor(1000 + Math.random() * 9000).toString(); // 4 digit number
 
     const token = jwt.sign({ user, activationCode }, process.env.ACTIVATION_SECRET as Secret, {
