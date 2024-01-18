@@ -6,5 +6,5 @@ if (!redisUrl) {
     throw new Error("Redis connection failed: REDIS_URL not provided");
 }
 
-console.log("Redis connected");
+console.log("Redis connection successful");
 export const redis = new Redis(redisUrl);
