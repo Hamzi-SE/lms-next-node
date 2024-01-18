@@ -5,6 +5,7 @@ import User, { IUser } from "../models/user.model";
 import ErrorHandler from "../utils/ErrorHandler";
 import { createActivationToken, sendToken } from "../utils/jwt";
 import { sendEmail } from "../utils/sendMail";
+import { redis } from "../utils/redis";
 
 // Register a user => /api/v1/user/register
 interface IRegisterUserRequest extends Request {
@@ -140,8 +141,9 @@ export const loginUser = catchAsyncErrors(
 export const logoutUser = catchAsyncErrors(
     async (req: Request, res: Response, next: NextFunction) => {
         res.cookie("access_token", "", { maxAge: 1 }); // maxAge: 1 => expires immediately
-
         res.cookie("refresh_token", "", { maxAge: 1 });
+
+        redis.del(req.user?._id);
 
         res.status(200).json({
             success: true,
