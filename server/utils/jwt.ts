@@ -26,38 +26,31 @@ interface ITokenOptions {
     secure?: boolean;
 }
 
-export const sendToken = (
-    user: IUser,
-    statusCode: number,
-    res: Response,
-    tokenOptions?: ITokenOptions
-) => {
+// parse environment variables to integrate with fallback values
+const accessTokenExpire = parseInt(process.env.ACCESS_TOKEN_EXPIRE || "300", 10);
+const refreshTokenExpire = parseInt(process.env.REFRESH_TOKEN_EXPIRE || "1200", 10);
+
+// options for cookies
+export const accessTokenOptions: ITokenOptions = {
+    expires: new Date(Date.now() + accessTokenExpire * 60 * 1000), // e.g., 5 minutes
+    maxAge: accessTokenExpire * 60 * 1000,
+    httpOnly: true,
+    sameSite: "lax",
+};
+
+export const refreshTokenOptions: ITokenOptions = {
+    expires: new Date(Date.now() + refreshTokenExpire * 24 * 60 * 60 * 1000), // e.g., 3 days
+    maxAge: refreshTokenExpire * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+    sameSite: "lax",
+};
+
+export const sendToken = (user: IUser, statusCode: number, res: Response) => {
     const accessToken = user.signAccessToken();
     const refreshToken = user.signRefreshToken();
 
     // upload session to redis
     redis.set(user._id, JSON.stringify(user) as any);
-
-    // parse environment variables to integrate with fallback values
-    const accessTokenExpire = parseInt(process.env.ACCESS_TOKEN_EXPIRE || "300", 10);
-    const refreshTokenExpire = parseInt(process.env.REFRESH_TOKEN_EXPIRE || "1200", 10);
-
-    // options for cookies
-    const accessTokenOptions: ITokenOptions = {
-        expires: new Date(Date.now() + accessTokenExpire * 1000),
-        maxAge: accessTokenExpire * 1000,
-        httpOnly: true,
-        sameSite: "lax",
-        ...tokenOptions,
-    };
-
-    const refreshTokenOptions: ITokenOptions = {
-        expires: new Date(Date.now() + refreshTokenExpire * 1000),
-        maxAge: refreshTokenExpire * 1000,
-        httpOnly: true,
-        sameSite: "lax",
-        ...tokenOptions,
-    };
 
     // set secure flag to true in production
     if (process.env.NODE_ENV === "production") {

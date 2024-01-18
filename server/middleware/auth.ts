@@ -15,7 +15,7 @@ export const isAuthenticated = catchAsyncErrors(
 
         const decoded = jwt.verify(
             accessToken,
-            process.env.JWT_ACCESS_SECRET as string
+            (process.env.JWT_ACCESS_SECRET as string) || "accessSecret"
         ) as JwtPayload;
 
         if (!decoded) {

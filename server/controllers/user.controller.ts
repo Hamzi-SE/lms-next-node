@@ -1,9 +1,14 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import catchAsyncErrors from "../middleware/catchAsyncErrors";
 import User, { IUser } from "../models/user.model";
 import ErrorHandler from "../utils/ErrorHandler";
-import { createActivationToken, sendToken } from "../utils/jwt";
+import {
+    accessTokenOptions,
+    createActivationToken,
+    refreshTokenOptions,
+    sendToken,
+} from "../utils/jwt";
 import { sendEmail } from "../utils/sendMail";
 import { redis } from "../utils/redis";
 
@@ -148,6 +153,57 @@ export const logoutUser = catchAsyncErrors(
         res.status(200).json({
             success: true,
             message: "Logged out successfully",
+        });
+    }
+);
+
+// Update access token => /api/v1/user/refresh-token
+export const updateAccessToken = catchAsyncErrors(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const refreshToken = req.cookies.refresh_token as string;
+
+        const decoded = jwt.verify(
+            refreshToken,
+            (process.env.JWT_REFRESH_SECRET as string) || "refreshSecret"
+        ) as JwtPayload;
+
+        if (!decoded) {
+            return next(new ErrorHandler("Invalid refresh token", 401));
+        }
+
+        const session = await redis.get(decoded.id);
+
+        if (!session) {
+            return next(new ErrorHandler("Session expired", 401));
+        }
+
+        const user = JSON.parse(session);
+
+        const accessToken = jwt.sign(
+            { id: user._id },
+            (process.env.JWT_ACCESS_SECRET as string) || "accessSecret",
+            {
+                expiresIn: process.env.JWT_ACCESS_TIME || "5m",
+            }
+        );
+
+        const newRefreshToken = jwt.sign(
+            {
+                id: user._id,
+            },
+            (process.env.JWT_REFRESH_SECRET as string) || "refreshSecret",
+            {
+                expiresIn: process.env.JWT_REFRESH_TIME || "3d",
+            }
+        );
+
+        res.cookie("access_token", accessToken, accessTokenOptions);
+        res.cookie("refresh_token", newRefreshToken, refreshTokenOptions);
+
+        res.status(200).json({
+            success: true,
+            message: "Access token refreshed successfully",
+            accessToken,
         });
     }
 );
