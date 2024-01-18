@@ -11,6 +11,7 @@ import {
 } from "../utils/jwt";
 import { sendEmail } from "../utils/sendMail";
 import { redis } from "../utils/redis";
+import { getUserById } from "../services/user.services";
 
 // Register a user => /api/v1/user/register
 interface IRegisterUserRequest extends Request {
@@ -205,5 +206,42 @@ export const updateAccessToken = catchAsyncErrors(
             message: "Access token refreshed successfully",
             accessToken,
         });
+    }
+);
+
+// Get currently logged in user details => /api/v1/user/me
+export const getUserProfile = catchAsyncErrors(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const userId = req?.user?._id;
+        getUserById(userId, res);
+    }
+);
+
+// Social auth
+interface ISocialAuthRequest extends Request {
+    body: {
+        name: string;
+        email: string;
+        avatar: string;
+    };
+}
+export const socialAuth = catchAsyncErrors(
+    async (req: ISocialAuthRequest, res: Response, next: NextFunction) => {
+        const { name, email, avatar } = req.body;
+
+        // check if email already exists
+        const user = await User.findOne({ email });
+
+        if (user) {
+            sendToken(user, 200, res);
+        } else {
+            const newUser = await User.create({
+                name,
+                email,
+                avatar,
+            });
+
+            sendToken(newUser, 200, res);
+        }
     }
 );
