@@ -12,6 +12,7 @@ import {
 import { sendEmail } from "../utils/sendMail";
 import { redis } from "../utils/redis";
 import { getUserById } from "../services/user.services";
+import cloudinary from "cloudinary";
 
 // Register a user => /api/v1/user/register
 interface IRegisterUserRequest extends Request {
@@ -198,6 +199,8 @@ export const updateAccessToken = catchAsyncErrors(
             }
         );
 
+        req.user = user;
+
         res.cookie("access_token", accessToken, accessTokenOptions);
         res.cookie("refresh_token", newRefreshToken, refreshTokenOptions);
 
@@ -217,7 +220,7 @@ export const getUserProfile = catchAsyncErrors(
     }
 );
 
-// Social auth
+// Social auth => /api/v1/user/social-auth
 interface ISocialAuthRequest extends Request {
     body: {
         name: string;
@@ -243,5 +246,157 @@ export const socialAuth = catchAsyncErrors(
 
             sendToken(newUser, 200, res);
         }
+    }
+);
+
+// Update user info => /api/v1/user/update-profile
+interface IUpdateProfileRequest extends Request {
+    body: {
+        name: string;
+        email: string;
+    };
+}
+export const updateProfile = catchAsyncErrors(
+    async (req: IUpdateProfileRequest, res: Response, next: NextFunction) => {
+        const newUserData = {
+            name: req.body.name,
+            email: req.body.email,
+        };
+
+        const user = await User.findByIdAndUpdate(req.user?._id, newUserData, {
+            new: true,
+            runValidators: true,
+            useFindAndModify: false,
+        });
+
+        // update user in redis
+        await redis.set(req.user?._id, JSON.stringify(user));
+
+        res.status(200).json({
+            success: true,
+            message: "User updated successfully",
+            user,
+        });
+    }
+);
+
+// Update user password => /api/v1/user/update-password
+interface IUpdatePasswordRequest extends Request {
+    body: {
+        oldPassword: string;
+        newPassword: string;
+    };
+}
+export const updatePassword = catchAsyncErrors(
+    async (req: IUpdatePasswordRequest, res: Response, next: NextFunction) => {
+        const { oldPassword, newPassword } = req.body;
+
+        if (!oldPassword || !newPassword) {
+            return next(new ErrorHandler("Please enter old and new password", 400));
+        }
+
+        // check if old password is correct
+        const user = await User.findById(req.user?._id).select("+password");
+
+        if (!user) {
+            return next(new ErrorHandler("User not found", 404));
+        }
+
+        if (user?.password === undefined) {
+            return next(
+                new ErrorHandler(
+                    "Can not change password because you logged in using your social account",
+                    400
+                )
+            );
+        }
+
+        const isPasswordMatched = await user?.comparePassword(oldPassword);
+
+        if (!isPasswordMatched) {
+            return next(new ErrorHandler("Old password is incorrect", 400));
+        }
+
+        if (oldPassword === newPassword) {
+            return next(
+                new ErrorHandler("New password can not be the same as old password", 400)
+            );
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        // update user in redis
+        await redis.set(req.user?._id, JSON.stringify(user));
+
+        res.status(200).json({
+            success: true,
+            message: "Password updated successfully",
+            user,
+        });
+    }
+);
+
+// Update user avatar => /api/v1/user/update-avatar
+interface IUpdateAvatarRequest extends Request {
+    body: {
+        avatar: string;
+    };
+}
+export const updateAvatar = catchAsyncErrors(
+    async (req: IUpdateAvatarRequest, res: Response, next: NextFunction) => {
+        if (!req.body.avatar) {
+            return next(new ErrorHandler("Please upload an image", 400));
+        }
+
+        const userId = req.user?._id;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return next(new ErrorHandler("User not found", 404));
+        }
+
+        if (user.avatar) {
+            // if user has an avatar, delete it from cloudinary and upload new one
+            if (user?.avatar?.public_id) {
+                // delete previous image from cloudinary
+                await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+
+                // upload new image to cloudinary
+                const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+                    folder: "lms-next-node-avatars",
+                    width: 150,
+                    crop: "scale",
+                });
+
+                user.avatar = {
+                    public_id: myCloud.public_id,
+                    url: myCloud.secure_url,
+                };
+            } else {
+                const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
+                    folder: "lms-next-node-avatars",
+                    width: 150,
+                    crop: "scale",
+                });
+
+                user.avatar = {
+                    public_id: myCloud.public_id,
+                    url: myCloud.secure_url,
+                };
+            }
+        }
+
+        await user.save();
+
+        // update user in redis
+        await redis.set(req.user?._id, JSON.stringify(user));
+
+        res.status(200).json({
+            success: true,
+            message: "Avatar updated successfully",
+            user,
+        });
     }
 );
