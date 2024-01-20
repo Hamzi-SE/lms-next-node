@@ -3,6 +3,7 @@ export const app = express();
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.route";
+import courseRoutes from "./routes/course.route";
 
 import ErrorMiddleware from "./middleware/error";
 
@@ -21,6 +22,7 @@ app.use(
 
 // routes
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/course", courseRoutes);
 
 // testing api
 app.get("/health", (req: Request, res: Response, next: NextFunction) => {
