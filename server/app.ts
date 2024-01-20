@@ -22,7 +22,7 @@ app.use(
 
 // routes
 app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/course", courseRoutes);
+app.use("/api/v1/courses", courseRoutes);
 
 // testing api
 app.get("/health", (req: Request, res: Response, next: NextFunction) => {
