@@ -134,3 +134,33 @@ export const getAllCourses = catchAsyncErrors(
         });
     }
 );
+
+// Get course content --- with purchase
+export const getCourseByUser = catchAsyncErrors(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const userCourses = req.user?.courses;
+
+        const courseId = req.params.id;
+
+        const courseExists = userCourses?.find(
+            (course: any) => course._id.toString() === courseId
+        );
+
+        if (!courseExists) {
+            return next(new ErrorHandler("You are not enrolled in this course", 400));
+        }
+
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+            return next(new ErrorHandler("Course not found", 404));
+        }
+
+        const content = course.courseData;
+
+        res.status(200).json({
+            success: true,
+            content,
+        });
+    }
+);

@@ -5,6 +5,7 @@ import {
     updateCourse,
     getSingleCourse,
     getAllCourses,
+    getCourseByUser,
 } from "../controllers/course.controller";
 
 const router = express.Router();
@@ -16,5 +17,7 @@ router.route("/update/:id").put(isAuthenticated, authorizeRoles("admin"), update
 router.route("/single/:id").get(getSingleCourse);
 
 router.route("/all").get(getAllCourses);
+
+router.route("/content/:id").get(isAuthenticated, getCourseByUser);
 
 export default router;
