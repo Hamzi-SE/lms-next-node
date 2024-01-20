@@ -12,7 +12,8 @@ interface ISendEmailOptions {
 export const sendEmail = async (options: ISendEmailOptions): Promise<void> => {
     const transporter: Transporter = nodeMailer.createTransport({
         host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT),
+        port: process.env.NODE_ENV === "production" ? 465 : 587,
+        secure: process.env.NODE_ENV === "production" ? true : false,
         service: process.env.SMTP_SERVICE,
         auth: {
             user: process.env.SMTP_MAIL,

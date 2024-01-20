@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="" X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Muhammad Hamza" />
+    <meta name="description" content="LMS Question Reply Email" />
+
+    <title>Question Reply Notification</title>
+
+    <style type="text/css">
+        /* Base styles */
+        body {
+            margin: 0;
+            padding: 0;
+            min-width: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            background-color: #fafafa;
+            color: #222222;
+        }
+
+        a {
+            color: #000;
+            text-decoration: none;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.25;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 24px;
+        }
+
+        table td {
+            vertical-align: top;
+        }
+
+        /* Layout styles */
+        .wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background-color: #0070f3;
+            padding: 15px 30px;
+            color: #ffffff;
+        }
+
+        .body {
+            padding: 30px;
+            background-color: #ffffff;
+        }
+
+        .footer {
+            padding: 15px 30px;
+            background-color: #f6f6f6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <h1>Question Reply Notification</h1>
+        </div>
+        <div class="body">
+            <p>Hi <%= name %>,</p>
+            <p>Your question has been replied by the instructor in the video "<%= title %>". <br />Please login to your
+                    account to view the reply.</p>
+            <p>Regards,</p>
+            <p>Team LMS</p>
+        </div>
+        <div class="footer">
+            <p>© 2024 LMS. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+
+</html>

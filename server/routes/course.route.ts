@@ -6,6 +6,8 @@ import {
     getSingleCourse,
     getAllCourses,
     getCourseByUser,
+    addQuestion,
+    addAnswer,
 } from "../controllers/course.controller";
 
 const router = express.Router();
@@ -19,5 +21,9 @@ router.route("/single/:id").get(getSingleCourse);
 router.route("/all").get(getAllCourses);
 
 router.route("/content/:id").get(isAuthenticated, getCourseByUser);
+
+router.route("/add-question").put(isAuthenticated, addQuestion);
+
+router.route("/add-answer").put(isAuthenticated, addAnswer);
 
 export default router;
