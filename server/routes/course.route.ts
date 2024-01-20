@@ -8,6 +8,8 @@ import {
     getCourseByUser,
     addQuestion,
     addAnswer,
+    addReview,
+    addReplyToReview,
 } from "../controllers/course.controller";
 
 const router = express.Router();
@@ -25,5 +27,11 @@ router.route("/content/:id").get(isAuthenticated, getCourseByUser);
 router.route("/add-question").put(isAuthenticated, addQuestion);
 
 router.route("/add-answer").put(isAuthenticated, addAnswer);
+
+router.route("/add-review/:id").put(isAuthenticated, addReview);
+
+router
+    .route("/add-review-reply")
+    .put(isAuthenticated, authorizeRoles("admin"), addReplyToReview);
 
 export default router;

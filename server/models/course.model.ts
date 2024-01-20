@@ -8,9 +8,10 @@ interface IComment extends Document {
 }
 
 interface IReview extends Document {
-    user: object;
+    user: IUser;
     rating: number;
     comment: string;
+    commentReplies?: IComment[];
 }
 
 interface ILink extends Document {
@@ -62,6 +63,7 @@ const reviewSchema = new Schema<IReview>(
             type: String,
             required: true,
         },
+        commentReplies: [Object],
     },
     { timestamps: true }
 );
