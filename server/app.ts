@@ -1,9 +1,11 @@
 import express, { NextFunction, Request, Response } from "express";
-export const app = express();
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.route";
 import courseRoutes from "./routes/course.route";
+import orderRoutes from "./routes/order.route";
+
+export const app = express();
 
 import ErrorMiddleware from "./middleware/error";
 
@@ -23,6 +25,7 @@ app.use(
 // routes
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/courses", courseRoutes);
+app.use("/api/v1/order", orderRoutes);
 
 // testing api
 app.get("/health", (req: Request, res: Response, next: NextFunction) => {
