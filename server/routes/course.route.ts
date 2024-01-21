@@ -10,6 +10,7 @@ import {
     addAnswer,
     addReview,
     addReplyToReview,
+    getAllCoursesAdmin,
 } from "../controllers/course.controller";
 
 const router = express.Router();
@@ -21,6 +22,8 @@ router.route("/update/:id").put(isAuthenticated, authorizeRoles("admin"), update
 router.route("/single/:id").get(getSingleCourse);
 
 router.route("/all").get(getAllCourses);
+
+router.route("/admin-all").get(isAuthenticated, authorizeRoles("admin"), getAllCoursesAdmin);
 
 router.route("/content/:id").get(isAuthenticated, getCourseByUser);
 

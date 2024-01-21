@@ -11,7 +11,7 @@ import {
 } from "../utils/jwt";
 import { sendEmail } from "../utils/sendMail";
 import { redis } from "../utils/redis";
-import { getUserById } from "../services/user.services";
+import { getAllUsersService, getUserById } from "../services/user.services";
 import cloudinary from "cloudinary";
 
 // Register a user => /api/v1/user/register
@@ -398,5 +398,12 @@ export const updateAvatar = catchAsyncErrors(
             message: "Avatar updated successfully",
             user,
         });
+    }
+);
+
+// Get all users - only admin => /api/v1/user/admin-all
+export const getAllUsersAdmin = catchAsyncErrors(
+    async (req: Request, res: Response, next: NextFunction) => {
+        getAllUsersService(res);
     }
 );

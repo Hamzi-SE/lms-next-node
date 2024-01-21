@@ -8,7 +8,7 @@ import Notification from "../models/notification.model";
 import path from "path";
 import ejs from "ejs";
 import { sendEmail } from "../utils/sendMail";
-import { newOrder } from "../services/order.services";
+import { getAllOrdersService, newOrder } from "../services/order.services";
 
 // Create order
 export const createOrder = catchAsyncErrors(
@@ -80,5 +80,12 @@ export const createOrder = catchAsyncErrors(
         await course.save();
 
         newOrder(data, res, next);
+    }
+);
+
+// Get all orders - admin => /api/v1/order/admin-all
+export const getAllOrdersAdmin = catchAsyncErrors(
+    async (req: Request, res: Response, next: NextFunction) => {
+        getAllOrdersService(res);
     }
 );

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import catchAsyncErrors from "../middleware/catchAsyncErrors";
 import ErrorHandler from "../utils/ErrorHandler";
 import cloudinary from "cloudinary";
-import { createCourse } from "../services/course.services";
+import { createCourse, getAllCoursesService } from "../services/course.services";
 import Course from "../models/course.model";
 import { redis } from "../utils/redis";
 import mongoose from "mongoose";
@@ -407,5 +407,12 @@ export const addReplyToReview = catchAsyncErrors(
             message: "Reply added successfully",
             course,
         });
+    }
+);
+
+// Get all courses - admin => /api/v1/courses/admin-all
+export const getAllCoursesAdmin = catchAsyncErrors(
+    async (req: Request, res: Response, next: NextFunction) => {
+        getAllCoursesService(res);
     }
 );

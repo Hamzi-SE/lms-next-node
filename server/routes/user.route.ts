@@ -1,6 +1,7 @@
 import express from "express";
 import {
     activateUser,
+    getAllUsersAdmin,
     getUserProfile,
     loginUser,
     logoutUser,
@@ -28,5 +29,7 @@ router.route("/me").get(isAuthenticated, getUserProfile);
 router.route("/update-profile").put(isAuthenticated, updateProfile);
 router.route("/update-password").put(isAuthenticated, updatePassword);
 router.route("/update-avatar").put(isAuthenticated, updateAvatar);
+
+router.route("/admin-all").get(isAuthenticated, authorizeRoles("admin"), getAllUsersAdmin);
 
 export default router;
