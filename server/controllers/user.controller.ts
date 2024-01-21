@@ -11,7 +11,11 @@ import {
 } from "../utils/jwt";
 import { sendEmail } from "../utils/sendMail";
 import { redis } from "../utils/redis";
-import { getAllUsersService, getUserById } from "../services/user.services";
+import {
+    getAllUsersService,
+    getUserById,
+    updateUserRoleService,
+} from "../services/user.services";
 import cloudinary from "cloudinary";
 
 // Register a user => /api/v1/user/register
@@ -405,5 +409,20 @@ export const updateAvatar = catchAsyncErrors(
 export const getAllUsersAdmin = catchAsyncErrors(
     async (req: Request, res: Response, next: NextFunction) => {
         getAllUsersService(res);
+    }
+);
+
+// Update user role - only admin => /api/v1/user/update-role
+interface IUpdateUserRoleRequest extends Request {
+    body: {
+        role: string;
+        id: string;
+    };
+}
+export const updateUserRole = catchAsyncErrors(
+    async (req: IUpdateUserRoleRequest, res: Response, next: NextFunction) => {
+        const { role, id } = req.body;
+
+        updateUserRoleService(res, id, role);
     }
 );
