@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 import ejs from "ejs";
 import path from "path";
 import { sendEmail } from "../utils/sendMail";
+import Notification from "../models/notification.model";
 
 // Upload course => /api/v1/course/create
 export const uploadCourse = catchAsyncErrors(
@@ -207,6 +208,12 @@ export const addQuestion = catchAsyncErrors(
         // add question to course
         courseContent.questions.push(questionData);
 
+        await Notification.create({
+            user: req.user?._id,
+            title: "New question received",
+            message: `${req.user?.name} has asked a question in ${course.name} - ${courseContent.title}}`,
+        });
+
         await course.save();
 
         res.status(200).json({
@@ -266,6 +273,11 @@ export const addAnswer = catchAsyncErrors(
 
         if (req.user?._id.toString() === question.user._id.toString()) {
             // create notification
+            await Notification.create({
+                user: req.user?._id,
+                title: "New question reply received",
+                message: `${req.user?.name} has replied in ${course.name} - ${courseContent.title}`,
+            });
         } else {
             const data = {
                 name: question.user.name,
@@ -339,12 +351,12 @@ export const addReview = catchAsyncErrors(
 
         await course.save();
 
-        const notification = {
+        // create notification
+        await Notification.create({
+            user: req.user?._id,
             title: "New review received",
             message: `${req.user?.name} has added a review in ${course.name}`,
-        };
-
-        // create notification --TODO
+        });
 
         res.status(200).json({
             success: true,

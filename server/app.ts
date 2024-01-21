@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.route";
 import courseRoutes from "./routes/course.route";
 import orderRoutes from "./routes/order.route";
+import notificationRoutes from "./routes/notification.route";
 
 export const app = express();
 
@@ -26,6 +27,7 @@ app.use(
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/courses", courseRoutes);
 app.use("/api/v1/order", orderRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
 
 // testing api
 app.get("/health", (req: Request, res: Response, next: NextFunction) => {
