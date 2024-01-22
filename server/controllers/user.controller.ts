@@ -426,3 +426,31 @@ export const updateUserRole = catchAsyncErrors(
         updateUserRoleService(res, id, role);
     }
 );
+
+// Delete user - only admin => /api/v1/user/delete/:id
+export const deleteUserAdmin = catchAsyncErrors(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const userId = req.params.id;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return next(new ErrorHandler("User not found", 404));
+        }
+
+        // delete user avatar from cloudinary
+        if (user.avatar?.public_id) {
+            await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+        }
+
+        await user.deleteOne({ _id: userId });
+
+        // update user in redis
+        await redis.del(userId);
+
+        res.status(200).json({
+            success: true,
+            message: `User (${user.name}) deleted successfully`,
+        });
+    }
+);
