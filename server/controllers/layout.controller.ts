@@ -234,3 +234,25 @@ export const editLayout = catchAsyncErrors(
         return next(new ErrorHandler("Invalid layout type", 400));
     }
 );
+
+// Get layout by type => /api/v1/layout      e.g., ?type=FAQ
+export const getLayoutByType = catchAsyncErrors(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { type } = req.query;
+
+        if (!type) {
+            return next(new ErrorHandler("Layout type is required", 400));
+        }
+
+        const layout = await Layout.findOne({ type });
+
+        if (!layout) {
+            return next(new ErrorHandler("Layout not found", 404));
+        }
+
+        return res.status(200).json({
+            success: true,
+            layout,
+        });
+    }
+);
