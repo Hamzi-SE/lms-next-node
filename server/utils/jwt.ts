@@ -50,7 +50,7 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
     const refreshToken = user.signRefreshToken();
 
     // upload session to redis
-    redis.set(user._id, JSON.stringify(user) as any);
+    redis.set(user._id, JSON.stringify(user as any), "EX", 604800); // 7 days
 
     // set secure flag to true in production
     if (process.env.NODE_ENV === "production") {

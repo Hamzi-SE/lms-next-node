@@ -100,7 +100,7 @@ export const getSingleCourse = catchAsyncErrors(
             return next(new ErrorHandler("Course not found", 404));
         }
 
-        await redis.set(`course:${courseId}`, JSON.stringify(course));
+        await redis.set(`course:${courseId}`, JSON.stringify(course), "EX", 604800); // 7 days
 
         res.status(200).json({
             success: true,
