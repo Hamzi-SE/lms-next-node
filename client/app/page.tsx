@@ -10,6 +10,7 @@ interface Props {}
 const Page: FC<Props> = (props) => {
     const [open, setOpen] = useState(false);
     const [activeItem, setActiveItem] = useState(0);
+    const [route, setRoute] = useState("Login");
 
     return (
         <div>
@@ -18,7 +19,13 @@ const Page: FC<Props> = (props) => {
                 description="LMS is a learning management system"
                 keywords="MERN, LMS, Learning, Management, System"
             />
-            <Header open={open} setOpen={setOpen} activeItem={activeItem} />
+            <Header
+                open={open}
+                setOpen={setOpen}
+                activeItem={activeItem}
+                route={route}
+                setRoute={setRoute}
+            />
             <Hero />
         </div>
     );
