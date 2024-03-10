@@ -96,9 +96,9 @@ const Login: FC<Props> = ({ setRoute }) => {
                 </h5>
                 <div className="flex items-center justify-center my-3">
                     <FcGoogle size={30} className="mr-3 cursor-pointer" />
-                    <AiFillGithub size={30} className="cursor-pointer" />
+                    <AiFillGithub size={30} className="cursor-pointer invert dark:invert-0" />
                 </div>
-                <h5 className="text-center pt-4 font-Poppins text-[14px]">
+                <h5 className="text-center pt-4 font-Poppins text-[14px] text-black dark:text-white">
                     Don&apos;t have an account?{" "}
                     <span
                         className="text-[#2190ff] pl-1 cursor-pointer"

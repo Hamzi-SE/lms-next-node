@@ -1,7 +1,9 @@
 import { styles } from "@/app/styles/style";
-import React, { FC, useRef, useState } from "react";
+import { useActivationMutation } from "@/redux/features/auth/authApi";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { VscWorkspaceTrusted } from "react-icons/vsc";
+import { useSelector } from "react-redux";
 
 type Props = {
     setRoute: (route: string) => void;
@@ -15,6 +17,7 @@ type VerifyNumber = {
 };
 
 const Verification: FC<Props> = ({ setRoute }) => {
+    const { token } = useSelector((state: any) => state.auth);
     const [invalid, setInvalid] = useState(false);
     const [verifyNumber, setVerifyNumber] = useState<VerifyNumber>({
         0: "",
@@ -22,6 +25,7 @@ const Verification: FC<Props> = ({ setRoute }) => {
         2: "",
         3: "",
     });
+    const [activation, { isSuccess, error, data }] = useActivationMutation();
 
     const inputRefs = [
         useRef<HTMLInputElement>(null),
@@ -31,8 +35,13 @@ const Verification: FC<Props> = ({ setRoute }) => {
     ];
 
     const verificationHandler = async () => {
-        setInvalid(true);
-        console.log(inputRefs);
+        const code = Object.values(verifyNumber).join("");
+        if (code.length !== 4) {
+            setInvalid(true);
+            return;
+        }
+
+        await activation({ activation_token: token, activation_code: code });
     };
 
     const handleInputChange = (index: number, value: string) => {
@@ -48,6 +57,27 @@ const Verification: FC<Props> = ({ setRoute }) => {
             inputRefs[index].current?.blur();
         }
     };
+
+    useEffect(() => {
+        if (isSuccess) {
+            toast.success(data?.message || "Account verified successfully");
+            setRoute("Login");
+        }
+
+        if (error) {
+            if ("data" in error) {
+                const errorData = error as any;
+                toast.error(
+                    errorData?.data?.message ||
+                        "An error occurred while verifying your account"
+                );
+            } else {
+                console.log(error);
+                toast.error("An error occurred while verifying your account");
+            }
+            setInvalid(true);
+        }
+    }, [isSuccess, error, setRoute]);
 
     return (
         <div>

@@ -1,11 +1,13 @@
 "use client";
 
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { AiOutlineEye, AiOutlineEyeInvisible, AiFillGithub } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
 import { styles } from "@/app/styles/style";
+import { useRegisterMutation } from "@/redux/features/auth/authApi";
+import toast from "react-hot-toast";
 
 type Props = {
     setRoute: (route: string) => void;
@@ -21,6 +23,7 @@ const schema = Yup.object().shape({
 
 const SignUp: FC<Props> = ({ setRoute }) => {
     const [showPassword, setShowPassword] = useState(false);
+    const [register, { error, isSuccess, data, isLoading }] = useRegisterMutation();
 
     const formik = useFormik({
         initialValues: {
@@ -29,12 +32,29 @@ const SignUp: FC<Props> = ({ setRoute }) => {
             password: "",
         },
         validationSchema: schema,
-        onSubmit: async ({ email, password }) => {
-            setRoute("Verification");
+        onSubmit: async ({ name, email, password }) => {
+            const data = { name, email, password };
+
+            await register(data);
         },
     });
 
     const { errors, touched, values, handleChange, handleSubmit } = formik;
+
+    useEffect(() => {
+        if (isSuccess) {
+            const message = data?.message || "Registration successful";
+            toast.success(message);
+            setRoute("Verification");
+        }
+
+        if (error) {
+            if ("data" in error) {
+                const errorData = error as any;
+                toast.error(errorData?.data?.message || "An error occurred while registering");
+            }
+        }
+    }, [isSuccess, error, data?.message, setRoute]);
 
     return (
         <div className="w-full">
@@ -95,13 +115,13 @@ const SignUp: FC<Props> = ({ setRoute }) => {
                         <AiOutlineEyeInvisible
                             size={20}
                             onClick={() => setShowPassword(true)}
-                            className="absolute bottom-3 right-2 z-1 cursor-pointer"
+                            className="absolute bottom-3 right-2 z-1 cursor-pointer invert dark:invert-0"
                         />
                     ) : (
                         <AiOutlineEye
                             size={20}
                             onClick={() => setShowPassword(false)}
-                            className="absolute bottom-3 right-2 z-1 cursor-pointer"
+                            className="absolute bottom-3 right-2 z-1 cursor-pointer invert dark:invert-0"
                         />
                     )}
                 </div>
@@ -109,7 +129,14 @@ const SignUp: FC<Props> = ({ setRoute }) => {
                     <span className="text-red-500 pt-2 block">{errors.password}</span>
                 )}
                 <div className="w-full mt-5">
-                    <input type="submit" value="Sign Up" className={`${styles.button}`} />
+                    <input
+                        disabled={isLoading}
+                        type="submit"
+                        value="Sign Up"
+                        className={`${styles.button} ${
+                            isLoading && "cursor-not-allowed opacity-50"
+                        }`}
+                    />
                 </div>
                 <br />
                 <h5 className="text-center pt-4 font-Poppins text-[14px] text-black dark:text-white">
@@ -117,9 +144,9 @@ const SignUp: FC<Props> = ({ setRoute }) => {
                 </h5>
                 <div className="flex items-center justify-center my-3">
                     <FcGoogle size={30} className="mr-3 cursor-pointer" />
-                    <AiFillGithub size={30} className="cursor-pointer" />
+                    <AiFillGithub size={30} className="cursor-pointer invert dark:invert-0" />
                 </div>
-                <h5 className="text-center pt-4 font-Poppins text-[14px]">
+                <h5 className="text-center pt-4 font-Poppins text-[14px] text-black dark:text-white">
                     Already have an account?
                     <span
                         className="text-[#2190ff] pl-1 cursor-pointer"

@@ -1,6 +1,9 @@
+"use client";
+
 import { Poppins, Josefin_Sans } from "next/font/google";
 import { ThemeProvider } from "./utils/theme-provider";
 import { Toaster } from "react-hot-toast";
+import ReduxProvider from "./Provider";
 
 import "./globals.css";
 
@@ -22,14 +25,16 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning={true}>
             <body
                 className={`${poppins.variable} ${josefin.variable} !bg-white bg-no-repeat dark:bg-gradient-to-b dark:from-gray-900 dark:to-black duration-300`}
             >
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-                    {children}
-                    <Toaster position="top-center" reverseOrder={false} />
-                </ThemeProvider>
+                <ReduxProvider>
+                    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                        {children}
+                        <Toaster position="top-center" reverseOrder={false} />
+                    </ThemeProvider>
+                </ReduxProvider>
             </body>
         </html>
     );
