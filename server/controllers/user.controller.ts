@@ -247,7 +247,10 @@ export const socialAuth = catchAsyncErrors(
             const newUser = await User.create({
                 name,
                 email,
-                avatar,
+                avatar: {
+                    public_id: "social-avatar",
+                    url: avatar,
+                },
             });
 
             sendToken(newUser, 200, res);

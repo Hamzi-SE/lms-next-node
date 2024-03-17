@@ -1,14 +1,18 @@
 "use client";
 
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { AiOutlineEye, AiOutlineEyeInvisible, AiFillGithub } from "react-icons/ai";
 import { FcGoogle } from "react-icons/fc";
 import { styles } from "@/app/styles/style";
+import { useLoginMutation } from "@/redux/features/auth/authApi";
+import toast from "react-hot-toast";
+import { signIn } from "next-auth/react";
 
 type Props = {
     setRoute: (route: string) => void;
+    setOpen: (open: boolean) => void;
 };
 
 const schema = Yup.object().shape({
@@ -18,8 +22,9 @@ const schema = Yup.object().shape({
         .min(6, "Password should be atleast 6 characters"),
 });
 
-const Login: FC<Props> = ({ setRoute }) => {
+const Login: FC<Props> = ({ setRoute, setOpen }) => {
     const [showPassword, setShowPassword] = useState(false);
+    const [login, { isLoading, isSuccess, isError, data, error }] = useLoginMutation();
 
     const formik = useFormik({
         initialValues: {
@@ -28,9 +33,22 @@ const Login: FC<Props> = ({ setRoute }) => {
         },
         validationSchema: schema,
         onSubmit: async ({ email, password }) => {
-            console.log(email, password);
+            await login({ email, password });
         },
     });
+
+    useEffect(() => {
+        if (isSuccess) {
+            toast.success("Logged in successfully");
+            setOpen(false);
+        }
+        if (error) {
+            if ("data" in error) {
+                const errorData = error as any;
+                toast.error(errorData?.data?.message || "Invalid credentials");
+            }
+        }
+    }, [isSuccess, error, data?.message, setOpen]);
 
     const { errors, touched, values, handleChange, handleSubmit } = formik;
 
@@ -95,8 +113,16 @@ const Login: FC<Props> = ({ setRoute }) => {
                     Or login with
                 </h5>
                 <div className="flex items-center justify-center my-3">
-                    <FcGoogle size={30} className="mr-3 cursor-pointer" />
-                    <AiFillGithub size={30} className="cursor-pointer invert dark:invert-0" />
+                    <FcGoogle
+                        size={30}
+                        className="mr-3 cursor-pointer"
+                        onClick={() => signIn("google")}
+                    />
+                    <AiFillGithub
+                        size={30}
+                        className="cursor-pointer invert dark:invert-0"
+                        onClick={() => signIn("github")}
+                    />
                 </div>
                 <h5 className="text-center pt-4 font-Poppins text-[14px] text-black dark:text-white">
                     Don&apos;t have an account?{" "}

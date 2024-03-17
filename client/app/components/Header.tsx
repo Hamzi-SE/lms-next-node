@@ -6,9 +6,16 @@ import Verification from "@/app/components/Auth/Verification";
 import CustomModal from "@/app/utils/CustomModal";
 import NavItems from "@/app/utils/NavItems";
 import ThemeSwitcher from "@/app/utils/ThemeSwitcher";
+import Image from "next/image";
 import Link from "next/link";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { HiOutlineMenuAlt3, HiOutlineUserCircle } from "react-icons/hi";
+import { useSelector } from "react-redux";
+import defaultAvatar from "@/public/assets/avatar.png";
+import { useSession } from "next-auth/react";
+import { useSocialAuthMutation } from "@/redux/features/auth/authApi";
+import toast from "react-hot-toast";
+import { useAppSelector } from "@/redux/store";
 
 type Props = {
     open: boolean;
@@ -21,6 +28,29 @@ type Props = {
 const Header: FC<Props> = ({ activeItem, setOpen, open, route, setRoute }) => {
     const [active, setActive] = useState(false);
     const [openSidebar, setOpenSidebar] = useState(false);
+    const { user } = useAppSelector((state) => state.auth);
+    const { data } = useSession();
+    const [socialAuth, { isSuccess, error }] = useSocialAuthMutation();
+
+    useEffect(() => {
+        if (Object.keys(user as {}).length === 0) {
+            if (data) {
+                socialAuth({
+                    email: data?.user?.email,
+                    name: data?.user?.name,
+                    avatar: data?.user?.image,
+                });
+            }
+        }
+
+        if (isSuccess) {
+            toast.success("Logged in successfully");
+        }
+
+        if (error) {
+            toast.error("An error occurred");
+        }
+    }, [data, user]);
 
     if (typeof window !== "undefined") {
         window.addEventListener("scroll", () => {
@@ -68,11 +98,23 @@ const Header: FC<Props> = ({ activeItem, setOpen, open, route, setRoute }) => {
                                     onClick={() => setOpenSidebar(true)}
                                 />
                             </div>
-                            <HiOutlineUserCircle
-                                size={25}
-                                className="hidden 800px:block cursor-pointer text-black dark:text-white"
-                                onClick={() => setOpen(true)}
-                            />
+                            {user?.avatar ? (
+                                <Link href={"/profile"}>
+                                    <Image
+                                        src={user.avatar?.url || defaultAvatar}
+                                        width={30}
+                                        height={30}
+                                        alt="avatar"
+                                        className="rounded-full cursor-pointer"
+                                    />
+                                </Link>
+                            ) : (
+                                <HiOutlineUserCircle
+                                    size={25}
+                                    className="hidden 800px:block cursor-pointer text-black dark:text-white"
+                                    onClick={() => setOpen(true)}
+                                />
+                            )}
                         </div>
                     </div>
                 </div>

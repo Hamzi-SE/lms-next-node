@@ -77,7 +77,7 @@ const Verification: FC<Props> = ({ setRoute }) => {
             }
             setInvalid(true);
         }
-    }, [isSuccess, error, setRoute]);
+    }, [isSuccess, error, setRoute, data?.message]);
 
     return (
         <div>
