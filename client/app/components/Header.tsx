@@ -13,7 +13,7 @@ import { HiOutlineMenuAlt3, HiOutlineUserCircle } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import defaultAvatar from "@/public/assets/avatar.png";
 import { useSession } from "next-auth/react";
-import { useSocialAuthMutation } from "@/redux/features/auth/authApi";
+import { useLogOutQuery, useSocialAuthMutation } from "@/redux/features/auth/authApi";
 import toast from "react-hot-toast";
 import { useAppSelector } from "@/redux/store";
 
@@ -28,12 +28,18 @@ type Props = {
 const Header: FC<Props> = ({ activeItem, setOpen, open, route, setRoute }) => {
     const [active, setActive] = useState(false);
     const [openSidebar, setOpenSidebar] = useState(false);
+    // const [logout, setLogout] = useState(false);
+
+    // const {} = useLogOutQuery(undefined, {
+    //     skip: !logout ? true : false, // we will skip the query if the logout state is false
+    // });
+
     const { user } = useAppSelector((state) => state.auth);
     const { data } = useSession();
     const [socialAuth, { isSuccess, error }] = useSocialAuthMutation();
 
     useEffect(() => {
-        if (Object.keys(user as {}).length === 0) {
+        if (!user) {
             if (data) {
                 socialAuth({
                     email: data?.user?.email,
@@ -43,13 +49,19 @@ const Header: FC<Props> = ({ activeItem, setOpen, open, route, setRoute }) => {
             }
         }
 
-        if (isSuccess) {
-            toast.success("Logged in successfully");
+        if (data === null) {
+            if (isSuccess) {
+                toast.success("Logged in successfully");
+            }
         }
 
         if (error) {
             toast.error("An error occurred");
         }
+
+        // if (status === "authenticated" && data === null) {
+        //     setLogout(true);
+        // }
     }, [data, user]);
 
     if (typeof window !== "undefined") {
@@ -98,14 +110,16 @@ const Header: FC<Props> = ({ activeItem, setOpen, open, route, setRoute }) => {
                                     onClick={() => setOpenSidebar(true)}
                                 />
                             </div>
-                            {user?.avatar ? (
+                            {user ? (
                                 <Link href={"/profile"}>
                                     <Image
-                                        src={user.avatar?.url || defaultAvatar}
+                                        src={user?.avatar?.url || defaultAvatar}
                                         width={30}
                                         height={30}
                                         alt="avatar"
-                                        className="rounded-full cursor-pointer"
+                                        className={`rounded-full cursor-pointer ${
+                                            activeItem === 5 ? "border-2 border-teal-500" : ""
+                                        }`}
                                     />
                                 </Link>
                             ) : (
