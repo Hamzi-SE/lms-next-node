@@ -262,14 +262,12 @@ export const socialAuth = catchAsyncErrors(
 interface IUpdateProfileRequest extends Request {
     body: {
         name: string;
-        email: string;
     };
 }
 export const updateProfile = catchAsyncErrors(
     async (req: IUpdateProfileRequest, res: Response, next: NextFunction) => {
         const newUserData = {
             name: req.body.name,
-            email: req.body.email,
         };
 
         const user = await User.findByIdAndUpdate(req.user?._id, newUserData, {

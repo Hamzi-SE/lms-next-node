@@ -24,7 +24,52 @@ export const userApi = apiSlice.injectEndpoints({
                 }
             },
         }),
+
+        editProfile: builder.mutation({
+            query: ({ name }) => ({
+                url: "user/update-profile",
+                method: "PUT",
+                body: { name },
+                credentials: "include" as const,
+            }),
+
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                try {
+                    const result = await queryFulfilled;
+                    dispatch(
+                        userUpdate({
+                            user: result.data.user,
+                        })
+                    );
+                } catch (error: any) {
+                    console.error("Error updating profile:", error);
+                }
+            },
+        }),
+
+        updatePassword: builder.mutation({
+            query: ({ oldPassword, newPassword }) => ({
+                url: "user/update-password",
+                method: "PUT",
+                body: { oldPassword, newPassword },
+                credentials: "include" as const,
+            }),
+
+            async onQueryStarted(data, { dispatch, queryFulfilled }) {
+                try {
+                    const result = await queryFulfilled;
+                    dispatch(
+                        userUpdate({
+                            user: result.data.user,
+                        })
+                    );
+                } catch (error: any) {
+                    console.error("Error updating password:", error);
+                }
+            },
+        }),
     }),
 });
 
-export const { useUpdateAvatarMutation } = userApi;
+export const { useUpdateAvatarMutation, useEditProfileMutation, useUpdatePasswordMutation } =
+    userApi;

@@ -3,7 +3,10 @@ import React, { FC, useEffect, useState } from "react";
 import { AiOutlineCamera } from "react-icons/ai";
 import avatarIcon from "@/public/assets/avatar.png";
 import { styles } from "@/app/styles/style";
-import { useUpdateAvatarMutation } from "@/redux/features/user/userApi";
+import {
+    useEditProfileMutation,
+    useUpdateAvatarMutation,
+} from "@/redux/features/user/userApi";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import { useAppSelector } from "@/redux/store";
 import toast from "react-hot-toast";
@@ -12,35 +15,45 @@ const ProfileInfo: FC = () => {
     const { user } = useAppSelector((state) => state.auth);
     const [name, setName] = useState<string>(user && user.name);
     const [loadUser, setLoadUser] = useState(false);
-    const [updateAvatar, { isSuccess, error }] = useUpdateAvatarMutation();
+    const [updateAvatar, { isSuccess, error, isLoading }] = useUpdateAvatarMutation();
+    const [editProfile, { isSuccess: editSuccess, error: editError, isLoading: editLoading }] =
+        useEditProfileMutation();
     const {} = useLoadUserQuery(undefined, { skip: !loadUser });
 
     const imageHandler = async (e: any) => {
         const fileReader = new FileReader();
         fileReader.readAsDataURL(e.target.files[0]);
 
-        fileReader.onload = () => {
+        fileReader.onload = async () => {
             if (fileReader.readyState === 2) {
-                updateAvatar(fileReader.result);
+                await updateAvatar(fileReader.result);
             }
         };
     };
-    useEffect(() => {
-        if (isSuccess) {
-            setLoadUser(true);
-
-            toast.success("Avatar updated successfully");
-        }
-
-        if (error) {
-            console.log(error);
-        }
-    }, [isSuccess, error]);
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        console.log("submit");
+
+        if (name === user?.name || name === "") {
+            return;
+        }
+
+        await editProfile({ name });
     };
+
+    useEffect(() => {
+        if (editSuccess || isSuccess) {
+            setLoadUser(true);
+        }
+
+        if (error || editError) {
+            console.error(error || editError);
+        }
+
+        if (editSuccess) {
+            toast.success("Profile updated successfully");
+        }
+    }, [isSuccess, error, editSuccess, editError]);
 
     return (
         <>
@@ -49,7 +62,9 @@ const ProfileInfo: FC = () => {
                     <Image
                         src={user?.avatar.url || avatarIcon}
                         alt="avatar"
-                        className="w-32 h-32 cursor-pointer border-2 border-teal-500 rounded-full"
+                        className={`w-32 h-32 cursor-pointer border-2 border-teal-500 rounded-full ${
+                            isLoading ? "animate-pulse opacity-70 !cursor-not-allowed" : ""
+                        }`}
                         width={128}
                         height={128}
                     />
@@ -101,7 +116,11 @@ const ProfileInfo: FC = () => {
                             type="submit"
                             required
                             value="Update"
-                            className={`w-full 800px:w-64 h-10 border border-teal-500 text-center dark:text-white text-black rounded-[3px] mt-8 cursor-pointer`}
+                            className={`w-full 800px:w-64 h-10 border border-teal-500 text-center dark:text-white text-black rounded-[3px] mt-8 cursor-pointer ${
+                                isLoading || editLoading
+                                    ? "animate-pulse opacity-70 !cursor-not-allowed"
+                                    : ""
+                            }`}
                         />
                     </div>
                 </form>
