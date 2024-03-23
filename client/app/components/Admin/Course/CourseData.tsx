@@ -79,10 +79,9 @@ const CourseData: FC<Props> = ({
                 </label>
                 <br />
                 {benefits.map((benefit: { title: string }, index: number) => (
-                    <div className="relative">
+                    <div className="relative" key={`benefit-${index}`}>
                         <input
                             type="text"
-                            key={index}
                             name="benefit"
                             placeholder="You will learn..."
                             required
@@ -108,10 +107,9 @@ const CourseData: FC<Props> = ({
                 </label>
                 <br />
                 {prerequisites.map((prerequisite: { title: string }, index: number) => (
-                    <div className="relative">
+                    <div className="relative" key={`prerequisite-${index}`}>
                         <input
                             type="text"
-                            key={index}
                             name="prerequisite"
                             placeholder="You will need..."
                             required

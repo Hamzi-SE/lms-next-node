@@ -12,6 +12,7 @@ import {
     addReplyToReview,
     getAllCoursesAdmin,
     deleteCourseAdmin,
+    generateVideoUrl,
 } from "../controllers/course.controller";
 
 const router = express.Router();
@@ -41,5 +42,7 @@ router
 router
     .route("/delete/:id")
     .delete(isAuthenticated, authorizeRoles("admin"), deleteCourseAdmin);
+
+router.post("/get-vdo-cipher-otp", generateVideoUrl);
 
 export default router;

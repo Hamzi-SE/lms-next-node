@@ -10,6 +10,7 @@
   "author": "Muhammad Hamza",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.6.8",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.2",
     "cookie-parser": "^1.4.6",

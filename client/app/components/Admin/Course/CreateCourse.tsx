@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import CourseInformation from "./CourseInformation";
 import CourseOptions from "./CourseOptions";
 import CourseData from "./CourseData";
+import CourseContent from "./CourseContent";
+import CoursePreview from "./CoursePreview";
 
 type Props = {};
 
@@ -38,6 +40,44 @@ const CreateCourse = (props: Props) => {
     ]);
     const [courseData, setCourseData] = useState({});
 
+    const handleSubmit = async () => {
+        // format benefits and prerequisites
+        const formattedBenefits = benefits.map((benefit) => ({ title: benefit.title }));
+        const formattedPrerequisites = prerequisites.map((prerequisite) => ({
+            title: prerequisite.title,
+        }));
+
+        // format course content array
+        const formattedCourseContentData = courseContentData.map((content) => {
+            const formattedLinks = content.links.map((link) => ({
+                title: link.title,
+                url: link.url,
+            }));
+            return {
+                videoUrl: content.videoUrl,
+                title: content.title,
+                description: content.description,
+                videoSection: content.videoSection,
+                links: formattedLinks,
+                suggestion: content.suggestion,
+            };
+        });
+
+        // set course data
+        setCourseData({
+            ...courseInfo,
+            totalVideos: courseContentData.length,
+            benefits: formattedBenefits,
+            prerequisites: formattedPrerequisites,
+            courseContent: formattedCourseContentData,
+        });
+    };
+
+    const handleCourseCreate = async () => {
+        // create course
+        console.log(courseData);
+    };
+
     return (
         <div className="w-full flex min-h-screen">
             <div className="w-4/5">
@@ -57,6 +97,23 @@ const CreateCourse = (props: Props) => {
                         setPrerequisites={setPrerequisites}
                         active={active}
                         setActive={setActive}
+                    />
+                )}
+                {active === 2 && (
+                    <CourseContent
+                        active={active}
+                        setActive={setActive}
+                        courseContentData={courseContentData}
+                        setCourseContentData={setCourseContentData}
+                        handleSubmit={handleSubmit}
+                    />
+                )}
+                {active === 3 && (
+                    <CoursePreview
+                        active={active}
+                        setActive={setActive}
+                        courseData={courseData}
+                        handleCourseCreate={handleCourseCreate}
                     />
                 )}
             </div>

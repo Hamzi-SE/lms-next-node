@@ -10,6 +10,7 @@ import ejs from "ejs";
 import path from "path";
 import { sendEmail } from "../utils/sendMail";
 import Notification from "../models/notification.model";
+import axios from "axios";
 
 // Upload course => /api/v1/course/create
 export const uploadCourse = catchAsyncErrors(
@@ -440,6 +441,29 @@ export const deleteCourseAdmin = catchAsyncErrors(
         res.status(200).json({
             success: true,
             message: `Course (${course.name}) deleted successfully`,
+        });
+    }
+);
+
+// generate video url
+export const generateVideoUrl = catchAsyncErrors(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { videoId } = req.body;
+        const response = await axios.post(
+            `https://dev.vdocipher.com/api/videos/${videoId}/otp`,
+            { ttl: 300 },
+            {
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    Authorization: `Apisecret ${process.env.VDOCIPHER_API_SECRET}`,
+                },
+            }
+        );
+
+        res.status(200).json({
+            success: true,
+            data: response.data,
         });
     }
 );
