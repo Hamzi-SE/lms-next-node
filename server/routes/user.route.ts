@@ -26,16 +26,22 @@ router.route("/logout").get(isAuthenticated, logoutUser);
 
 router.route("/refresh-token").get(updateAccessToken);
 
-router.route("/me").get(isAuthenticated, getUserProfile);
+router.route("/me").get(updateAccessToken, isAuthenticated, getUserProfile);
 
-router.route("/update-profile").put(isAuthenticated, updateProfile);
-router.route("/update-password").put(isAuthenticated, updatePassword);
-router.route("/update-avatar").put(isAuthenticated, updateAvatar);
+router.route("/update-profile").put(updateAccessToken, isAuthenticated, updateProfile);
+router.route("/update-password").put(updateAccessToken, isAuthenticated, updatePassword);
+router.route("/update-avatar").put(updateAccessToken, isAuthenticated, updateAvatar);
 
-router.route("/admin-all").get(isAuthenticated, authorizeRoles("admin"), getAllUsersAdmin);
+router
+    .route("/admin-all")
+    .get(updateAccessToken, isAuthenticated, authorizeRoles("admin"), getAllUsersAdmin);
 
-router.route("/update-role").put(isAuthenticated, authorizeRoles("admin"), updateUserRole);
+router
+    .route("/update-role")
+    .put(updateAccessToken, isAuthenticated, authorizeRoles("admin"), updateUserRole);
 
-router.route("/delete/:id").delete(isAuthenticated, authorizeRoles("admin"), deleteUserAdmin);
+router
+    .route("/delete/:id")
+    .delete(updateAccessToken, isAuthenticated, authorizeRoles("admin"), deleteUserAdmin);
 
 export default router;

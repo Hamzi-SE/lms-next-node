@@ -14,34 +14,41 @@ import {
     deleteCourseAdmin,
     generateVideoUrl,
 } from "../controllers/course.controller";
+import { updateAccessToken } from "../controllers/user.controller";
 
 const router = express.Router();
 
-router.route("/create").post(isAuthenticated, authorizeRoles("admin"), uploadCourse);
+router
+    .route("/create")
+    .post(updateAccessToken, isAuthenticated, authorizeRoles("admin"), uploadCourse);
 
-router.route("/update/:id").put(isAuthenticated, authorizeRoles("admin"), updateCourse);
+router
+    .route("/update/:id")
+    .put(updateAccessToken, isAuthenticated, authorizeRoles("admin"), updateCourse);
 
 router.route("/single/:id").get(getSingleCourse);
 
 router.route("/all").get(getAllCourses);
 
-router.route("/admin-all").get(isAuthenticated, authorizeRoles("admin"), getAllCoursesAdmin);
+router
+    .route("/admin-all")
+    .get(updateAccessToken, isAuthenticated, authorizeRoles("admin"), getAllCoursesAdmin);
 
-router.route("/content/:id").get(isAuthenticated, getCourseByUser);
+router.route("/content/:id").get(updateAccessToken, isAuthenticated, getCourseByUser);
 
-router.route("/add-question").put(isAuthenticated, addQuestion);
+router.route("/add-question").put(updateAccessToken, isAuthenticated, addQuestion);
 
-router.route("/add-answer").put(isAuthenticated, addAnswer);
+router.route("/add-answer").put(updateAccessToken, isAuthenticated, addAnswer);
 
-router.route("/add-review/:id").put(isAuthenticated, addReview);
+router.route("/add-review/:id").put(updateAccessToken, isAuthenticated, addReview);
 
 router
     .route("/add-review-reply")
-    .put(isAuthenticated, authorizeRoles("admin"), addReplyToReview);
+    .put(updateAccessToken, isAuthenticated, authorizeRoles("admin"), addReplyToReview);
 
 router
     .route("/delete/:id")
-    .delete(isAuthenticated, authorizeRoles("admin"), deleteCourseAdmin);
+    .delete(updateAccessToken, isAuthenticated, authorizeRoles("admin"), deleteCourseAdmin);
 
 router.post("/get-vdo-cipher-otp", generateVideoUrl);
 
