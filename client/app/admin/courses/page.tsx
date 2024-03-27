@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
-import Heading from "../utils/Heading";
-import AdminSidebar from "../components/Admin/AdminSidebar";
+import AdminSidebar from "@/app/components/Admin/AdminSidebar";
+import AllCourses from "@/app/components/Admin/Course/AllCourses";
+import DashboardHero from "@/app/components/Admin/DashboardHero";
+import Heading from "@/app/utils/Heading";
 import AdminProtected from "@/hooks/adminProtected";
-import DashboardHero from "../components/Admin/DashboardHero";
+import React from "react";
 
 type Props = {};
 
@@ -22,6 +23,7 @@ const page = (props: Props) => {
                 </div>
                 <div className="w-5/6">
                     <DashboardHero />
+                    <AllCourses />
                 </div>
             </div>
         </AdminProtected>

@@ -68,8 +68,20 @@ export const userApi = apiSlice.injectEndpoints({
                 }
             },
         }),
+
+        getAllUsers: builder.query({
+            query: () => ({
+                url: "user/admin-all",
+                method: "GET",
+                credentials: "include" as const,
+            }),
+        }),
     }),
 });
 
-export const { useUpdateAvatarMutation, useEditProfileMutation, useUpdatePasswordMutation } =
-    userApi;
+export const {
+    useUpdateAvatarMutation,
+    useEditProfileMutation,
+    useUpdatePasswordMutation,
+    useGetAllUsersQuery,
+} = userApi;
